@@ -1,0 +1,35 @@
+name: IP Fetch
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"   # 每6小时运行一次
+  workflow_dispatch:        # 允许手动触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install requests beautifulsoup4
+
+      - name: Run script
+        run: |
+          python ip_script.py
+
+      - name: Commit and push results
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add ip.txt ip_area.txt
+          git commit -m "Update IP list [$(date +'%Y-%m-%d %H:%M:%S')]"
+          git push
